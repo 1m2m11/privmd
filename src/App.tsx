@@ -1,3 +1,4 @@
+cat > src/App.tsx << 'COMPLETE_EOF'
 import { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -15,7 +16,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
-  async function handleFile(file) {
+  async function handleFile(file?: File) {
     if (!file) return;
     if (file.type !== "application/pdf") {
       setError("Please upload a PDF file");
@@ -35,7 +36,7 @@ export default function App() {
         const content = await page.getTextContent();
         let pageText = "";
         let lastY = 0;
-        for (const item of content.items) {
+        for (const item of content.items as any[]) {
           const currentY = item.transform[5];
           if (lastY > 0 && Math.abs(lastY - currentY) > 20) {
             pageText += "\n\n";
@@ -47,7 +48,7 @@ export default function App() {
       }
       result = cleanMarkdown(result);
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      result = `${result}\n\n---\n\n*Converted ${pdf.numPages} pages in ${processingTime}s with ConvertPDF.pro*`;
+      result = `${result}\n\n---\n\n*Converted ${pdf.numPages} pages in ${processingTime}s*`;
       setText(result);
     } catch (err) {
       console.error("PDF error:", err);
@@ -57,15 +58,13 @@ export default function App() {
     }
   }
 
-  function cleanMarkdown(text) {
+  function cleanMarkdown(text: string): string {
     let cleaned = text;
     cleaned = cleaned.replace(/[ \t]+/g, ' ');
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
     cleaned = cleaned.replace(/^[•●○◦▪▫-]\s+/gm, '- ');
     cleaned = cleaned.replace(/^(\d+)\.\s+/gm, '$1. ');
-    cleaned = cleaned.replace(/^([A-Z][A-Z\s]{10,})$/gm, (match) => {
-      return `### ${match.trim()}`;
-    });
+    cleaned = cleaned.replace(/^([A-Z][A-Z\s]{10,})$/gm, (match) => `### ${match.trim()}`);
     cleaned = cleaned.replace(/\n(#{1,6}\s)/g, '\n\n$1');
     cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n/g, '$1\n\n');
     return cleaned.trim();
@@ -84,23 +83,24 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
-  function handleDrop(e) {
+  function handleDrop(e: React.DragEvent) {
     e.preventDefault();
-    setIsDragg    const file = e.dataTransfer.files[0];
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
   }
 
-  function handleDragOver(e) {
+  function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
     setIsDragging(true);
   }
 
-  function handleDragLeave(e) {
+  function handleDragLeave(e: React.DragEvent) {
     e.preventDefault();
     setIsDragging(false);
   }
 
-  function handleEmailSubmit(e) {
+  function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (email) {
       console.log("Email:", email);
@@ -109,10 +109,12 @@ export default function App() {
     }
   }
 
-  function clearAll() {
+  function secureReset() {
     setFileName("");
     setText("");
     setError("");
+    setLoading(false);
+    setIsDragging(false);
   }
 
   return (
@@ -121,13 +123,13 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold">C</div>
-            <span className="text-xl font-bold text-slate-900">ConvertPDF.pro</span>
+            <span className="text-xl font-bold">ConvertPDF.pro</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <nav className="hidden md:flex gap-6 text-sm">
             <a href="#security" className="text-slate-600 hover:text-slate-900">Security</a>
             <a href="#workflows" className="text-slate-600 hover:text-slate-900">Use Cases</a>
             <a href="#pricing" className="text-slate-600 hover:text-slate-900">Pricing</a>
-            <a href="#convert" className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800">Try Free</a>
+            <a href="#convert" className="px-4 py-2 bg-slate-900 text-white rounded-lg">Try Free</a>
           </nav>
         </div>
       </header>
@@ -136,19 +138,293 @@ export default function App() {
           <div className="inline-block mb-4 px-4 py-1 bg-green-50 border border-green-200 rounded-full text-sm text-green-700 font-medium">
             🔒 Zero uploads • 100% local • Full audit trail
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-            Secure Document Processing<br/><span className="text-sla">for Regulated Professionals</span>
+          <h1 className="text-5xl font-bold mb-6 leading-tight">
+            Secure Document Processing<br/><span className="text-slate-600">for Regulated Professionals</span>
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
             Process confidential files locally. No uploads. No cloud.
           </p>
           <div className="flex gap-3 justify-center mb-4">
-            <a href="#convert" className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium">Try Free Now</a>
-            <a href="mailto:support@convertpdf.pro" className="px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-lg hover:bg-slate-50 font-medium">Request Demo</a>
+            <a href="#convert" className="px-6 py-3 bg-slate-900 text-white rounded-lg">Try Free Now</a>
+            <a href="mailto:support@convertpdf.pro" className="px-6 py-3 border-2 border-slate-900 rounded-lg">Request Demo</a>
           </div>
           <p className="text-sm text-slate-500">No credit card required</p>
         </div>
       </section>
+      <section className="py-12 px-6 border-y">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-center text-lg font-semibold mb-8">Trusted for Sensitive Work</h3>
+          <div className="grid md:grid-cols-5 gap-6 text-center text-sm">
+            <div><div className="text-2xl mb-2">🏛️</div><p className="font-medium">Compliance-First</p></div>
+            <div><div className="text-2xl mb-2">👥</div><p className="font-medium">Professional Teams</p></div>
+            <div><div className="text-2xl mb-2">🇺🇸</div><p className="font-medium">Built in USA</p></div>
+            <div><div className="text-2xl mb-2">🛠️</div><p className="font-medium">Real Engineers</p></div>
+            <div><div className="text-2xl mb-2">📜</div><p className="font-medium">Commercial Grade</p></div>
+          </div>
+        </div>
+      </section>
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Who We Serve</h2>
+          <div className="grid md:grid-cols-5 gap-6 text-center">
+            <div className="p-6 border rounded-xl"><div className="text-3xl mb-3">⚖️</div><h3 className="font-semibold mb-1">Solo Attorneys</h3></div>
+            <div className="p-6 border rounded-xl"><div className="text-3xl mb-3">🏥</div><h3 className="font-semibold mb-1">Clinics</h3></div>
+            <div className="p-6 border rounded-xl"><div className="text-3xl mb-3">📊</div><h3 className="font-semibold mb-1">CPA Firms</h3></div>
+            <div className="p-6 border rounded-xl"><div className="text-3xl mb-3">🏦</div><h3 className="font-semibold mb-1">Auditors</h3></div>
+            <div className="p-6 border rounded-xl"><div className="text-3xl mb-3">📁</div><h3 className="font-semibold mb-1">Consultants</h3></div>
+          </div>
+        </div>
+      </section>
+      <section id="workflows" className="py-20 px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Built for Real Workflows</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-xl p-8 border">
+              <div className="text-3xl mb-4">⚖️</div>
+              <h3 className="text-xl font-bold mb-4">Legal Teams</h3>
+              <ul className="space-y-2 text-sm">
+                <li>✓ Batch case intake</li>
+                <li>✓ Exhibit labeling</li>
+                <li>✓ Clause extraction</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-xl p-8 border">
+              <div className="text-3xl mb-4">🏥</div>
+              <h3 className="text-xl font-bold mb-4">Medical Offices</h3>
+              <ul className="space-y-2 text-sm">
+                <li>✓ Chart processing</li>
+                <li>✓ Med summaries</li>
+                <li>✓ Claim prep</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-xl p-8 border">
+              <div className="text-3xl mb-4">💼</div>
+              <h3 className="text-xl font-bold mb-4">Finance</h3>
+              <ul className="space-y-2 text-sm">
+                <li>✓ Statement parsing</li>
+                <li>✓ Audit exports</li>
+                <li>✓ CSV normalization</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="security" className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Security & Data Handling</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-slate-50 rounded-xl p-6 border">
+              <h3 className="text-lg font-bold mb-4">🔒 Data Handling</h3>
+              <ul className="text-sm space-y-2">
+                <li>• All files processed locally</li>
+                <li>• Zero uploads</li>
+                <li>• No remote logging</li>
+              </ul>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6 border">
+              <h3 className="text-lg font-bold mb-4">💾 Storage</h3>
+              <ul className="text-sm space-y-2">
+                <li>• Encrypted in browser</li>
+                <li>• User-controlled deletion</li>
+                <li>• No persistent storage</li>
+              </ul>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6 border">
+              <h3 className="text-lg font-bold mb-4">🏗️ Infrastructure</h3>
+              <ul className="text-sm space-y-2">
+                <li>• No third-party APIs</li>
+                <li>• Browser sandbox</li>
+                <li>• No backend database</li>
+              </ul>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6 border">
+              <h3 className="text-lg font-bold mb-4">📋 Auditing</h3>
+              <ul className="text-sm space-y-2">
+                <li>• Processing logs on request</li>
+                <li>• Exportable reports</li>
+                <li>• IT documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="py-16 px-6 bg-blue-50 border-y">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-4">Designed for Regulated Workflows</h2>
+          <p className="text-slate-700">
+            Supports HIPAA, GDPR, SOC2-aligned environments. <strong>Customers remain responsible for compliance.</strong>
+          </p>
+        </div>
+      </section>
+      <section id="convert" className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold">Try It Free</h2>
+              <p className="text-slate-600">No signup required</p>
+            </div>
+            {(fileName || text) && (
+              <button onClick={secureReset} className="px-5 py-2.5 text-white bg-red-600 rounded-lg font-medium">
+                🔒 Secure Reset
+              </button>
+            )}
+          </div>
+          <div className="bg-white rounded-2xl shadow-xl border">
+            <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={`border-2 border-dashed rounded-xl m-6 p-16 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'}`}>
+              <div className="text-center">
+                <p className="text-lg font-medium mb-4">{isDragging ? "Drop PDF here" : "Drag and drop PDF"}</p>
+                <label>
+                  <input type="file" accept="application/pdf" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
+                  <span className="px-6 py-3 bg-slate-900 text-white rounded-lg cursor-pointer">Browse Files</span>
+                </label>
+                {fileName && <p className="mt-4 text-sm text-green-600">✓ {fileName}</p>}
+              </div>
+            </div>
+            {loading && <div className="px-6 pb-6 text-center text-blue-600">Converting...</div>}
+            {error && <div className="px-6 pb-6"><div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div></div>}
+            {text && (
+              <div className="border-t bg-slate-50 p-6">
+                <div className="flex justify-between mb-3">
+                  <p className="text-sm font-semibold">Markdown Output</p>
+                  <div className="flex gap-2">
+                    <button onClick={secureReset} className="px-4 py-2 text-sm text-red-600 border rounded-lg">Clear</button>
+                    <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm border rounded-lg">Copy</button>
+                    <button onClick={downloadMarkdown} className="px-4 py-2 text-sm bg-slate-900 text-white rounded-lg">Download</button>
+                  </div>
+                </div>
+                <textarea className="w-full h-96 border rounded-lg p-4 font-mono text-sm" value={text} readOnly />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+      <section id="pricing" className="py-20 px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Pricing</h2>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="bg-white border-2 rounded-2xl p-8">
+              <h3 className="text-xl font-bold mb-2">Free</h3>
+              <div className="text-4xl font-bold mb-4">$0</div>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li>✓ Unlimited PDFs</li>
+                <li>✓ Local processing</li>
+                <li>• Watermark</li>
+              </ul>
+              <a href="#convert" className="block text-center py-3 border-2 rounded-lg font-medium">Start Free</a>
+            </div>
+            <div className="bg-white border-2 border-slate-900 rounded-2xl p-8 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-xs">MOST POPULAR</div>
+              <h3 className="text-xl font-bold mb-2">Professional</h3>
+              <div className="text-4xl font-bold mb-4">$29<span className="text-lg text-slate-600">/mo</span></div>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li>✓ Everything in Free</li>
+                <li>✓ No watermark</li>
+                <li>✓ Unlimited pages</li>
+                <li>✓ Batch processing</li>
+              </ul>
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full py-3 bg-slate-900 text-white rounded-lg">Join Waitlist</button>
+            </div>
+            <div className="bg-white border-2 rounded-2xl p-8">
+              <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+              <div className="text-4xl font-bold mb-4">Custom</div>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li>✓ Everything in Pro</li>
+                <li>✓ On-premise deploy</li>
+                <li>✓ Security review</li>
+                <li>✓ SLA guarantees</li>
+              </ul>
+              <a href="mailto:support@convertpdf.pro?subject=Enterprise" className="block text-center py-3 bg-slate-900 text-white rounded-lg">Contact Sales</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Product Roadmap</h2>
+          <div className="space-y-4">
+            <div className="flex gap-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white">✓</div>
+              <div><h3 className="font-semibold">Secure Local Processing</h3><p className="text-sm text-slate-600">Live now</p></div>
+            </div>
+            <div className="flex gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">⏳</div>
+              <div><h3 className="font-semibold">AI Summaries</h3><p className="text-sm text-slate-600">Q2 2026</p></div>
+            </div>
+            <div className="flex gap-4 p-4 bg-slate-50 border rounded-lg">
+              <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center text-white">📋</div>
+              <div><h3 className="font-semibold">Redaction Tools</h3><p className="text-sm text-slate-600">Q3 2026</p></div>
+            </div>
+            <div className="flex gap-4 p-4 bg-slate-50 border rounded-lg">
+              <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center text-white">📊</div>
+              <div><h3 className="font-semibold">Compliance Reports</h3><p className="text-sm text-slate-600">Q4 2026</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="py-16 px-6 bg-amber-50 border-y">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-4">Professional Responsibility</h2>
+          <div className="text-sm text-slate-700 space-y-2">
+            <p><strong>ConvertPDF.pro is a processing tool</strong>, not professional advice.</p>
+            <p>Users responsible for verifying outputs and regulatory compliance.</p>
+          </div>
+        </div>
+      </section>
+      <section className="py-20 px-6 bg-slate-900 text-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready for Secure Processing?</h2>
+          <p className="text-slate-300 mb-8">Join professionals who trust ConvertPDF.pro</p>
+          {!emailSubmitted ? (
+            <form onSubmit={handleEmailSubmit} className="max-w-md mx-auto flex gap-2">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter email" className="flex-1 px-4 py-3 rounded-lg text-slate-900" required />
+              <button type="submit" className="px-6 py-3 bg-white text-slate-900 rounded-lg font-semibold">Start</button>
+            </form>
+          ) : (
+            <div className="py-3 bg-green-600 rounded-lg max-w-md mx-auto">✓ Thanks!</div>
+          )}
+        </div>
+      </section>
+      <footer className="border-t py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-sm">C</div>
+                <span className="font-bold">ConvertPDF.pro</span>
+              </div>
+              <p className="text-sm text-slate-600">Secure document processing</p>
+              <p className="text-xs text-slate-500">Delaware, USA</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3 text-sm">Product</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li><a href="#security">Security</a></li>
+                <li><a href="#workflows">Use Cases</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3 text-sm">Company</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#security">Compliance</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3 text-sm">Support</h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li><a href="mailto:support@convertpdf.pro">support@convertpdf.pro</a></li>
+                <li><a href="mailto:support@convertpdf.pro?subject=Enterprise">Enterprise Sales</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t pt-8 text-center text-sm text-slate-600">
+            <p>© 2026 ConvertPDF.pro. Files never leave your device.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
+COMPLETE_EOF
