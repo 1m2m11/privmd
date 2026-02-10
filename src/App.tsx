@@ -1,9 +1,11 @@
 import { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-/* Use bundled worker, not CDN */
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+/* Worker will be copied to assets folder during build */
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  '/assets/pdf.worker.min.mjs',
+  import.meta.url
+).href;
 
 export default function App() {
   const [fileName, setFileName] = useState("");
@@ -14,46 +16,27 @@ export default function App() {
   async function handleFile(file?: File) {
     if (!file) return;
 
-    console.log("=== PDF Processing Started ===");
-    console.log("File:", file.name, file.type, file.size);
-
     setFileName(file.name);
     setText("");
     setError("");
     setLoading(true);
 
     try {
-      console.log("Step 1: Reading file buffer...");
       const buffer = await file.arrayBuffer();
-      console.log("Buffer size:", buffer.byteLength);
-
-      console.log("Step 2: Loading PDF document...");
-      console.log("Worker source:", pdfjsLib.GlobalWorkerOptions.workerSrc);
-      
-      const loadingTask = pdfjsLib.getDocument({ data: buffer });
-      const pdf = await loadingTask.promise;
-      
-      console.log("Step 3: PDF loaded successfully!");
-      console.log("Number of pages:", pdf.numPages);
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
 
       let result = "";
 
       for (let i = 1; i <= pdf.numPages; i++) {
-        console.log(`Processing page ${i}/${pdf.numPages}...`);
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         const strings = content.items.map((item: any) => item.str).join(" ");
         result += `\n\n--- Page ${i} ---\n\n${strings}`;
       }
 
-      console.log("Step 4: Extraction complete!");
       setText(result);
     } catch (err) {
-      console.error("=== ERROR ===");
-      console.error("Error type:", err);
-      console.error("Error message:", err instanceof Error ? err.message : String(err));
-      console.error("Stack trace:", err instanceof Error ? err.stack : "N/A");
-      
+      console.error("PDF error:", err);
       setError(`Error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
