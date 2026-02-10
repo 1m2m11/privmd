@@ -3,7 +3,9 @@ import * as pdfjsLib from "pdfjs-dist";
 
 /* Use CDN worker (Vercel-safe) */
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://mozilla.github.io/pdf.js/build/pdf.worker.js";
+
 
 /* Basic cleanup to Markdown */
 function convertToMarkdown(raw: string): string {
