@@ -36,14 +36,12 @@ export default function App() {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         
-        // Extract text with better structure
         let pageText = "";
         let lastY = 0;
         
         for (const item of content.items as any[]) {
           const currentY = item.transform[5];
           
-          // Detect paragraph breaks (vertical spacing)
           if (lastY > 0 && Math.abs(lastY - currentY) > 20) {
             pageText += "\n\n";
           }
@@ -55,10 +53,7 @@ export default function App() {
         result += `\n\n## Page ${i}\n\n${pageText.trim()}`;
       }
       
-      // Clean up the markdown
       result = cleanMarkdown(result);
-      
-      // Add watermark
       result = `${result}\n\n---\n\n*Converted with PrivMD - 100% Local Processing*`;
       
       setText(result);
@@ -72,28 +67,15 @@ export default function App() {
 
   function cleanMarkdown(text: string): string {
     let cleaned = text;
-    
-    // Remove excessive whitespace
     cleaned = cleaned.replace(/[ \t]+/g, ' ');
-    
-    // Normalize line breaks (max 2 consecutive)
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-    
-    // Detect and format bullet points
     cleaned = cleaned.replace(/^[•●○◦▪▫-]\s+/gm, '- ');
-    
-    // Detect numbered lists
     cleaned = cleaned.replace(/^(\d+)\.\s+/gm, '$1. ');
-    
-    // Detect potential headings (ALL CAPS lines)
     cleaned = cleaned.replace(/^([A-Z][A-Z\s]{10,})$/gm, (match) => {
       return `### ${match.trim()}`;
     });
-    
-    // Clean up spacing around headers
     cleaned = cleaned.replace(/\n(#{1,6}\s)/g, '\n\n$1');
     cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n/g, '$1\n\n');
-    
     return cleaned.trim();
   }
 
@@ -130,7 +112,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur">
+      <header className="border-b bg-white/80 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">PrivMD</h1>
@@ -138,7 +120,7 @@ export default function App() {
           </div>
           
             href="#pricing"
-            className="text-sm font-medium text-slate-600 hover:text-slate-900"
+            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition"
           >
             Pricing
           </a>
@@ -281,8 +263,101 @@ export default function App() {
         </div>
       </main>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-white py-20 mt-20">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">Simple, Transparent Pricing</h2>
+            <p className="text-slate-600">Choose the plan that fits your needs</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            {/* Free Tier */}
+            <div className="border-2 border-slate-200 rounded-2xl p-8">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Free</h3>
+                <div className="text-4xl font-bold text-slate-900 mb-1">$0</div>
+                <p className="text-sm text-slate-600">Perfect for occasional use</p>
+              </div>
+              
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Unlimited PDFs</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>100% local processing</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Basic Markdown formatting</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-500">
+                  <span className="mt-0.5">•</span>
+                  <span>Watermark on output</span>
+                </li>
+              </ul>
+              
+              <button className="w-full py-3 border-2 border-slate-300 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition">
+                Current Plan
+              </button>
+            </div>
+
+            {/* Pro Tier */}
+            <div className="border-2 border-slate-900 rounded-2xl p-8 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-xs font-semibold">
+                COMING SOON
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Pro</h3>
+                <div className="text-4xl font-bold text-slate-900 mb-1">$29<span className="text-lg text-slate-600">/mo</span></div>
+                <p className="text-sm text-slate-600">For professionals</p>
+              </div>
+              
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span><strong>Everything in Free, plus:</strong></span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>No watermark</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Advanced table extraction</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Batch processing (50+ PDFs)</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Desktop app (500MB+ files)</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-700">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>Priority support</span>
+                </li>
+              </ul>
+              
+              <button className="w-full py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition">
+                Join Waitlist
+              </button>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-slate-500 mt-8">
+            Questions? Email <a href="mailto:hello@privmd.com" className="text-slate-700 hover:underline">hello@privmd.com</a>
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t bg-white/80 backdrop-blur mt-20">
+      <footer className="border-t bg-white/80 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 py-8 text-center text-sm text-slate-600">
           <p className="mb-2">Your files never leave your device. Processing happens 100% locally in your browser.</p>
           <p className="text-xs text-slate-400">© 2026 PrivMD. No tracking. No cookies. No BS.</p>
