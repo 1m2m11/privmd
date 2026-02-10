@@ -3,9 +3,7 @@ import * as pdfjsLib from "pdfjs-dist";
 
 /* Use CDN worker (Vercel-safe) */
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
 
 /* Basic cleanup to Markdown */
 function convertToMarkdown(raw: string): string {
@@ -120,7 +118,6 @@ export default function App() {
             {fileName && (
               <p className="mt-2 text-sm text-green-600">
                 Loaded: {fileName}
-             
               </p>
             )}
           </div>
@@ -158,7 +155,7 @@ export default function App() {
             <button
               onClick={() => navigator.clipboard.writeText(text)}
               disabled={!text}
-              className="px-4 py-2 border rounded disabled:opacity-50"
+              className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-slate-50"
             >
               Copy
             </button>
@@ -166,7 +163,7 @@ export default function App() {
             <button
               onClick={downloadMarkdown}
               disabled={!text}
-              className="px-4 py-2 bg-slate-900 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 bg-slate-900 text-white rounded disabled:opacity-50 hover:bg-slate-800"
             >
               Download .md
             </button>
