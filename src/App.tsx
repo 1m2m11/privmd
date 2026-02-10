@@ -1,4 +1,3 @@
-cat > src/App.tsx << 'COMPLETE_EOF'
 import { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -427,4 +426,3 @@ export default function App() {
     </div>
   );
 }
-COMPLETE_EOF
