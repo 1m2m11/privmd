@@ -4,7 +4,7 @@ import * as pdfjsLib from "pdfjs-dist";
 /* Use CDN worker (Vercel-safe) */
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://mozilla.github.io/pdf.js/build/pdf.worker.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 
 /* Basic cleanup to Markdown */
