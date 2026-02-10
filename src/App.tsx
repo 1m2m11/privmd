@@ -1,11 +1,11 @@
 import { useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
-/* Configure worker (Vite-compatible) */
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+/* Use CDN worker (Vercel-safe) */
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
 
-/* Simple Markdown cleanup */
+/* Basic cleanup to Markdown */
 function convertToMarkdown(raw: string): string {
   let md = raw;
 
@@ -41,7 +41,6 @@ export default function App() {
 
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-
         const content = await page.getTextContent();
 
         const strings = content.items
@@ -98,7 +97,7 @@ export default function App() {
           Local PDF → Markdown (Private, Offline)
         </p>
 
-        {/* Card */}
+        {/* Main Card */}
         <div className="bg-white border rounded-xl p-6 space-y-5">
 
           {/* Upload */}
@@ -119,6 +118,7 @@ export default function App() {
             {fileName && (
               <p className="mt-2 text-sm text-green-600">
                 Loaded: {fileName}
+             
               </p>
             )}
           </div>
