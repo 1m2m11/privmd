@@ -138,10 +138,10 @@ export default function App() {
             🔒 Zero uploads • 100% local • Full audit trail
           </div>
           <h1 className="text-5xl font-bold mb-6 leading-tight">
-            Secure Document Processing<br/><span className="text-slate-600">for Regulated Professionals</span>
+            Document Processing<br/><span className="text-slate-600">for Regulated Industries</span>
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-            Process confidential files locally. No uploads. No cloud.
+            HIPAA, SOX & Section 508-aligned. Extract structured data while maintaining compliance.
           </p>
           <div className="flex gap-3 justify-center mb-4">
             <a href="#convert" className="px-6 py-3 bg-slate-900 text-white rounded-lg">Try Free Now</a>
@@ -156,7 +156,7 @@ export default function App() {
           <div className="grid md:grid-cols-5 gap-6 text-center text-sm">
             <div><div className="text-2xl mb-2">🏛️</div><p className="font-medium">Compliance-First</p></div>
             <div><div className="text-2xl mb-2">👥</div><p className="font-medium">Professional Teams</p></div>
-            <div><div className="text-2xl mb-2">🇺🇸</div><p className="font-medium">Built in USA</p></div>
+            <div><div className="text-2xl mb-2">🔐</div><p className="font-medium">Zero-Knowledge</p></div>
             <div><div className="text-2xl mb-2">🛠️</div><p className="font-medium">Real Engineers</p></div>
             <div><div className="text-2xl mb-2">📜</div><p className="font-medium">Commercial Grade</p></div>
           </div>
@@ -271,7 +271,8 @@ export default function App() {
           <div className="bg-white rounded-2xl shadow-xl border">
             <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={`border-2 border-dashed rounded-xl m-6 p-16 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'}`}>
               <div className="text-center">
-                <p className="text-lg font-medium mb-4">{isDragging ? "Drop PDF here" : "Drag and drop PDF"}</p>
+                <p className="text-lg font-medium mb-2">{isDragging ? "Drop PDF here" : "Drag and drop PDF"}</p>
+                <p className="text-sm text-slate-500 mb-4">🔒 Processed locally. Files never uploaded.</p>
                 <label>
                   <input type="file" accept="application/pdf" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
                   <span className="px-6 py-3 bg-slate-900 text-white rounded-lg cursor-pointer">Browse Files</span>
@@ -305,7 +306,7 @@ export default function App() {
               <h3 className="text-xl font-bold mb-2">Free</h3>
               <div className="text-4xl font-bold mb-4">$0</div>
               <ul className="space-y-3 mb-8 text-sm">
-                <li>✓ Unlimited PDFs</li>
+                <li>✓ 3 PDFs per month</li>
                 <li>✓ Local processing</li>
                 <li>• Watermark</li>
               </ul>
@@ -316,10 +317,12 @@ export default function App() {
               <h3 className="text-xl font-bold mb-2">Professional</h3>
               <div className="text-4xl font-bold mb-4">$29<span className="text-lg text-slate-600">/mo</span></div>
               <ul className="space-y-3 mb-8 text-sm">
-                <li>✓ Everything in Free</li>
+                <li>✓ Unlimited PDFs</li>
                 <li>✓ No watermark</li>
-                <li>✓ Unlimited pages</li>
+                <li>✓ Metadata extraction</li>
+                <li>✓ Audit logs</li>
                 <li>✓ Batch processing</li>
+                <li>✓ All templates</li>
               </ul>
               <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full py-3 bg-slate-900 text-white rounded-lg">Join Waitlist</button>
             </div>
@@ -392,7 +395,7 @@ export default function App() {
                 <span className="font-bold">ConvertPDF.pro</span>
               </div>
               <p className="text-sm text-slate-600">Secure document processing</p>
-              <p className="text-xs text-slate-500">Delaware, USA</p>
+              <p className="text-xs text-slate-500">Architecture, USA</p>
             </div>
             <div>
               <h4 className="font-semibold mb-3 text-sm">Product</h4>
