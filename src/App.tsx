@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -16,6 +16,44 @@ export default function App() {
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   const [metadata, setMetadata] = useState<any>(null);
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [redactions, setRedactions] = useState<any[]>([]);
+
+  function addRedaction(pageNum: number, text: string, coords: any) {
+    const newRedaction = { id: Date.now(), page: pageNum, text: text, coords: coords };
+    setRedactions([...redactions, newRedaction]);
+  }
+
+  function removeRedaction(id: number) {
+    setRedactions(redactions.filter(r => r.id !== id));
+  }
+
+  function applyRedactions(markdownText: string): string {
+    let redacted = markdownText;
+    redactions.forEach(r => {
+      redacted = redacted.replace(new RegExp(r.text, 'gi'), '[REDACTED]');
+    });
+    return redacted;
+  }
+
+  useEffect(() => {
+    if (!pdfDoc) return;
+    const canvas = document.getElementById('pdf-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    
+    pdfDoc.getPage(currentPage).then((page: any) => {
+      const viewport = page.getViewport({ scale: 1.5 });
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      
+      page.render({
+        canvasContext: context,
+        viewport: viewport
+      });
+    });
+  }, [pdfDoc, currentPage]);
   async function handleFile(file?: File) {
     if (!file) return;
     if (file.type !== "application/pdf") {
@@ -30,6 +68,7 @@ export default function App() {
     try {
       const buffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      setPdfDoc(pdf);
       const pdfMetadata = await pdf.getMetadata();
       const meta = {
         title: (pdfMetadata.info as any).Title || fileName,
@@ -70,6 +109,7 @@ producer: "${meta.producer}"
       result = yamlHeader + result;
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
       result = `${result}\n\n---\n\n*Converted ${pdf.numPages} pages in ${processingTime}s*`;
+      result = applyRedactions(result);
       setText(result);
     } catch (err) {
       console.error("PDF error:", err);
@@ -85,10 +125,10 @@ producer: "${meta.producer}"
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
     cleaned = cleaned.replace(/^[•●○◦▪▫-]\s+/gm, '- ');
     cleaned = cleaned.replace(/^(\d+)\.\s+/gm, '$1. ');
+    return cleaned.trim();
     cleaned = cleaned.replace(/^([A-Z][A-Z\s]{10,})$/gm, (match) => `### ${match.trim()}`);
     cleaned = cleaned.replace(/\n(#{1,6}\s)/g, '\n\n$1');
     cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n/g, '$1\n\n');
-    return cleaned.trim();
   }
 
   function downloadMarkdown() {
@@ -304,6 +344,44 @@ producer: "${meta.producer}"
             </div>
             {loading && <div className="px-6 pb-6 text-center text-blue-600">Converting...</div>}
             {error && <div className="px-6 pb-6"><div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div></div>}
+            {text && redactions.length > 0 && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm font-semibold mb-2 text-red-900">🔒 Active Redactions ({redactions.length})</p>
+                <div className="space-y-2">
+                  {redactions.map(r => (
+                    <div key={r.id} className="flex justify-between items-center text-xs bg-white p-2 rounded">
+                      <span className="font-mono">Page {r.page}: {r.text.substring(0, 30)}...</span>
+                      <button onClick={() => removeRedaction(r.id)} className="text-red-600 hover:text-red-800">Remove</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {pdfDoc && !text && (
+              <div className="bg-white rounded-xl border-2 border-slate-200 p-6 mb-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">PDF Preview - Select Text to Redact</h3>
+                  <div className="flex gap-2 items-center">
+                    <button 
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} 
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >Previous</button>
+                    <span className="text-sm">Page {currentPage} of {pdfDoc.numPages}</span>
+                    <button 
+                      onClick={() => setCurrentPage(Math.min(pdfDoc.numPages, currentPage + 1))} 
+                      disabled={currentPage === pdfDoc.numPages}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >Next</button>
+                  </div>
+                </div>
+                <div className="border rounded-lg overflow-hidden bg-slate-50 flex justify-center">
+                  <canvas id="pdf-canvas" className="max-w-full"></canvas>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">Tip: Select text by clicking and dragging. Click "Convert" when done redacting.</p>
+              </div>
+            )}
             {text && (
               <div className="border-t bg-slate-50 p-6">
               {metadata && (
