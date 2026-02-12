@@ -139,10 +139,10 @@ producer: "${metadata?.producer}"
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
     cleaned = cleaned.replace(/^[•●○◦▪▫-]\s+/gm, '- ');
     cleaned = cleaned.replace(/^(\d+)\.\s+/gm, '$1. ');
-    return cleaned.trim();
     cleaned = cleaned.replace(/^([A-Z][A-Z\s]{10,})$/gm, (match) => `### ${match.trim()}`);
     cleaned = cleaned.replace(/\n(#{1,6}\s)/g, '\n\n$1');
     cleaned = cleaned.replace(/(#{1,6}\s[^\n]+)\n/g, '$1\n\n');
+    return cleaned.trim();
   }
 
   function downloadMarkdown() {
