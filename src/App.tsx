@@ -15,6 +15,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
+  const [metadata, setMetadata] = useState<any>(null);
   async function handleFile(file?: File) {
     if (!file) return;
     if (file.type !== "application/pdf") {
@@ -29,6 +30,16 @@ export default function App() {
     try {
       const buffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const pdfMetadata = await pdf.getMetadata();
+      const meta = {
+        title: (pdfMetadata.info as any).Title || fileName,
+        author: (pdfMetadata.info as any).Author || "Unknown",
+        created: (pdfMetadata.info as any).CreationDate || new Date().toISOString(),
+        modified: (pdfMetadata.info as any).ModDate || new Date().toISOString(),
+        pages: pdf.numPages,
+        producer: (pdfMetadata.info as any).Producer || "Unknown"
+      };
+      setMetadata(meta);
       let result = "";
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
@@ -46,6 +57,17 @@ export default function App() {
         result += `\n\n## Page ${i}\n\n${pageText.trim()}`;
       }
       result = cleanMarkdown(result);
+      const yamlHeader = `---
+title: "${meta.title}"
+author: "${meta.author}"
+created: "${meta.created}"
+modified: "${meta.modified}"
+pages: ${meta.pages}
+producer: "${meta.producer}"
+---
+
+`;
+      result = yamlHeader + result;
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
       result = `${result}\n\n---\n\n*Converted ${pdf.numPages} pages in ${processingTime}s*`;
       setText(result);
@@ -284,6 +306,17 @@ export default function App() {
             {error && <div className="px-6 pb-6"><div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div></div>}
             {text && (
               <div className="border-t bg-slate-50 p-6">
+              {metadata && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm font-semibold mb-2 text-blue-900">📄 Document Metadata</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><span className="font-medium">Title:</span> {metadata.title}</div>
+                    <div><span className="font-medium">Author:</span> {metadata.author}</div>
+                    <div><span className="font-medium">Pages:</span> {metadata.pages}</div>
+                    <div><span className="font-medium">Created:</span> {new Date(metadata.created).toLocaleDateString()}</div>
+                  </div>
+                </div>
+              )}
                 <div className="flex justify-between mb-3">
                   <p className="text-sm font-semibold">Markdown Output</p>
                   <div className="flex gap-2">
