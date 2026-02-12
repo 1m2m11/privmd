@@ -79,38 +79,6 @@ export default function App() {
         producer: (pdfMetadata.info as any).Producer || "Unknown"
       };
       setMetadata(meta);
-      let result = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        let pageText = "";
-        let lastY = 0;
-        for (const item of content.items as any[]) {
-          const currentY = item.transform[5];
-          if (lastY > 0 && Math.abs(lastY - currentY) > 20) {
-            pageText += "\n\n";
-          }
-          pageText += item.str + " ";
-          lastY = currentY;
-        }
-        result += `\n\n## Page ${i}\n\n${pageText.trim()}`;
-      }
-      result = cleanMarkdown(result);
-      const yamlHeader = `---
-title: "${meta.title}"
-author: "${meta.author}"
-created: "${meta.created}"
-modified: "${meta.modified}"
-pages: ${meta.pages}
-producer: "${meta.producer}"
----
-
-`;
-      result = yamlHeader + result;
-      const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      result = `${result}\n\n---\n\n*Converted ${pdf.numPages} pages in ${processingTime}s*`;
-      result = applyRedactions(result);
-      setText(result);
     } catch (err) {
       console.error("PDF error:", err);
       setError("Failed to parse PDF");
@@ -119,6 +87,52 @@ producer: "${meta.producer}"
     }
   }
 
+
+  async function convertToMarkdown() {
+    if (!pdfDoc) return;
+    setLoading(true);
+    setError("");
+    const startTime = Date.now();
+    try {
+      let result = "";
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const content = await page.getTextContent();
+        let pageText = "";
+        let lastY = 0;
+        for (const item of content.items as any[]) {
+          const currentY = item.transform[5];
+          if (lastY > 0 && Math.abs(lastY - currentY) > 20) {
+            pageText += "\n";
+          }
+          pageText += item.str + " ";
+          lastY = currentY;
+        }
+        result += `\n\n## Page ${i}\n\n${pageText.trim()}`;
+      }
+      result = cleanMarkdown(result);
+      const yamlHeader = `---
+title: "${metadata?.title}"
+author: "${metadata?.author}"
+created: "${metadata?.created}"
+modified: "${metadata?.modified}"
+pages: ${metadata?.pages}
+producer: "${metadata?.producer}"
+---
+
+`;
+      result = yamlHeader + result;
+      result = applyRedactions(result);
+      const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
+      result = `${result}\n\n---\n\n*Converted ${pdfDoc.numPages} pages in ${processingTime}s*`;
+      setText(result);
+    } catch (err) {
+      console.error("Convert error:", err);
+      setError("Failed to convert PDF");
+    } finally {
+      setLoading(false);
+    }
+  }
   function cleanMarkdown(text: string): string {
     let cleaned = text;
     cleaned = cleaned.replace(/[ \t]+/g, ' ');
@@ -380,6 +394,11 @@ producer: "${meta.producer}"
                   <canvas id="pdf-canvas" className="max-w-full"></canvas>
                 </div>
                 <p className="text-xs text-slate-500 mt-2">Tip: Select text by clicking and dragging. Click "Convert" when done redacting.</p>
+                <div className="mt-4 flex justify-center">
+                  <button onClick={convertToMarkdown} disabled={loading} className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
+                    {loading ? "Converting..." : "Convert to Markdown"}
+                  </button>
+                </div>
               </div>
             )}
             {text && (
