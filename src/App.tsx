@@ -424,7 +424,8 @@ producer: "${metadata?.producer}"
                 </div>
               )}
                 <div className="flex justify-between mb-3">
-                  <p className="text-sm font-semibold">Markdown Output {!isPro && <span className="text-xs text-orange-600 ml-2">{pdfCount}/3 PDFs used</span>}</p>
+                  <p className="text-sm font-semibold">Markdown Output</p>
+                  {!isPro && <span className="text-xs text-orange-600 ml-2">{pdfCount}/3 PDFs used</span>}
                   <div className="flex gap-2">
                     <button onClick={secureReset} className="px-4 py-2 text-sm text-red-600 border rounded-lg">Clear</button>
                     <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Copy</button>
