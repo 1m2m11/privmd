@@ -399,8 +399,6 @@ producer: "${metadata?.producer}"
                   <select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)} className="w-full p-2 border rounded">
                     <option value="none">None (Standard)</option>
                     <option value="legal">Legal (Bates + Privilege)</option>
-                    <option value="medical">Medical (HIPAA)</option>
-                    <option value="government">Government (Section 508)</option>
                   </select>
                 </div>
                 <div className="mt-4 flex justify-center">
