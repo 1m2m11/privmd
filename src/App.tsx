@@ -424,14 +424,14 @@ producer: "${metadata?.producer}"
                 </div>
               )}
                 <div className="flex justify-between mb-3">
-                  <p className="text-sm font-semibold">Markdown Output</p>
+                  <p className="text-sm font-semibold">Markdown Output {!isPro && <span className="text-xs text-orange-600 ml-2">{pdfCount}/3 PDFs used</span>}</p>
                   <div className="flex gap-2">
                     <button onClick={secureReset} className="px-4 py-2 text-sm text-red-600 border rounded-lg">Clear</button>
-                    <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm border rounded-lg">Copy</button>
+                    <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Copy</button>
                     <button onClick={downloadMarkdown} className="px-4 py-2 text-sm bg-slate-900 text-white rounded-lg">Download</button>
-                    <button onClick={exportAsPDFA} className="px-4 py-2 text-sm border rounded-lg">PDF/A</button>
-                    <button onClick={downloadComplianceReport} className="px-4 py-2 text-sm border rounded-lg">Compliance Report</button>
-                    <button onClick={downloadAuditLog} className="px-4 py-2 text-sm border rounded-lg">Audit Log</button>
+                    <button onClick={exportAsPDFA} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">PDF/A</button>
+                    <button onClick={downloadComplianceReport} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Compliance Report</button>
+                    <button onClick={downloadAuditLog} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Audit Log</button>
                   </div>
                 </div>
                 <textarea className="w-full h-96 border rounded-lg p-4 font-mono text-sm" value={text} readOnly />
