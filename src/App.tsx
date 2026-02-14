@@ -400,12 +400,13 @@ producer: "${metadata?.producer}"
                     <option value="none">None (Standard)</option>
                     <option value="legal">Legal (Bates + Privilege)</option>
                     <option value="medical">Medical (HIPAA)</option>
-                    <option value="finance">Finance (SOX)</option>
                     <option value="government">Government (Section 508)</option>
                   </select>
                 </div>
                 <div className="mt-4 flex justify-center">
                   <button onClick={convertToMarkdown} disabled={loading} className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">
+              </div>
+            )}
                     {loading ? "Converting..." : "Convert to Markdown"}
                   </button>
                 </div>
