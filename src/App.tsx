@@ -93,6 +93,10 @@ export default function App() {
 
 
   async function convertToMarkdown() {
+    if (!isPro && pdfCount >= 3) {
+      setError("Free tier limit reached (3 PDFs). Upgrade to Pro for unlimited conversions.");
+      return;
+    }
     if (!pdfDoc) return;
     setLoading(true);
     setError("");
@@ -130,6 +134,7 @@ producer: "${metadata?.producer}"
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
       result = `${result}\n\n---\n\n*Converted ${pdfDoc.numPages} pages in ${processingTime}s*`;
       setText(result);
+      setPdfCount(pdfCount + 1);
     } catch (err) {
       console.error("Convert error:", err);
       setError("Failed to convert PDF");
