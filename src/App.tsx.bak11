@@ -19,10 +19,6 @@ export default function App() {
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [redactions, setRedactions] = useState<any[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState("none");
-  const [isPro, setIsPro] = useState(false);
-  const [pdfCount, setPdfCount] = useState(0);
-
 
   function addRedaction(pageNum: number, text: string, coords: any) {
     const newRedaction = { id: Date.now(), page: pageNum, text: text, coords: coords };
@@ -421,24 +417,20 @@ producer: "${metadata?.producer}"
               {metadata && (
                 <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-sm font-semibold mb-2 text-blue-900">📄 Document Metadata</p>
-                  <p className="text-sm font-semibold mb-2 text-blue-900">📄 Document Metadata</p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><span className="font-medium">Title:</span> {metadata.title}</div>
                     <div><span className="font-medium">Pages:</span> {metadata.pages}</div>
                     <div><span className="font-medium">Created:</span> {new Date(metadata.created).toLocaleDateString()}</div>
                   </div>
                 </div>
               )}
                 <div className="flex justify-between mb-3">
-                  <p className="text-sm font-semibold">Markdown Output</p>
-                  {!isPro && <span className="text-xs text-orange-600 ml-2">{pdfCount}/3 PDFs used</span>}
+                  <p className="text-sm font-semibold">Markdown Output {!isPro && <span className="text-xs text-orange-600 ml-2">{pdfCount}/3 PDFs used</span>}</p>
                   <div className="flex gap-2">
-                    <button onClick={secureReset} className="px-4 py-2 text-sm bg-red-600 text-white border rounded-lg hover:bg-red-700">Clear</button>
-                    <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm bg-slate-900 text-white border rounded-lg hover:bg-slate-700">Copy</button>
+                    <button onClick={secureReset} className="px-4 py-2 text-sm text-red-600 border rounded-lg">Clear</button>
+                    <button onClick={() => navigator.clipboard.writeText(text)} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Copy</button>
                     <button onClick={downloadMarkdown} className="px-4 py-2 text-sm bg-slate-900 text-white rounded-lg">Download</button>
-                    <button onClick={exportAsPDFA} className="px-4 py-2 text-sm bg-slate-900 text-white border rounded-lg hover:bg-slate-700">PDF/A</button>
-                    <button onClick={downloadComplianceReport} className="px-4 py-2 text-sm bg-slate-900 text-white border rounded-lg hover:bg-slate-700">Compliance Report</button>
-                    <button onClick={downloadAuditLog} className="px-4 py-2 text-sm bg-slate-900 text-white border rounded-lg hover:bg-slate-700">Audit Log</button>
+                    <button onClick={exportAsPDFA} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">PDF/A</button>
+                    <button onClick={downloadComplianceReport} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Compliance Report</button>
+                    <button onClick={downloadAuditLog} className="px-4 py-2 text-sm border rounded-lg text-slate-900 hover:bg-slate-50">Audit Log</button>
                   </div>
                 </div>
                 <textarea className="w-full h-96 border rounded-lg p-4 font-mono text-sm" value={text} readOnly />
@@ -578,15 +570,3 @@ producer: "${metadata?.producer}"
     </div>
   );
 }
-
-  function exportAsPDFA() {
-    alert("PDF/A export coming soon!");
-  }
-
-  function downloadComplianceReport() {
-    alert("Compliance report coming soon!");
-  }
-
-  function downloadAuditLog() {
-    alert("Audit log coming soon!");
-  }
