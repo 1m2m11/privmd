@@ -459,7 +459,7 @@ producer: "${metadata?.producer}"
                 <li>✓ Local processing</li>
                 <li>• Watermark</li>
               </ul>
-              <a href="#convert" className="block text-center py-3 border-2 rounded-lg font-medium">Start Free</a>
+              <a href="#convert" className="block text-center py-3 bg-slate-900 text-white rounded-lg font-medium">Start Free</a>
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-2xl p-8 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-xs">MOST POPULAR</div>
