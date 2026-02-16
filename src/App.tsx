@@ -24,6 +24,11 @@ export default function App() {
   const [pdfCount, setPdfCount] = useState(0);
 
 
+  useEffect(() => {
+    const saved = localStorage.getItem("pdfCount");
+    if (saved) setPdfCount(Number(saved));
+  }, []);
+
   function addRedaction(pageNum: number, text: string, coords: any) {
     const newRedaction = { id: Date.now(), page: pageNum, text: text, coords: coords };
     setRedactions([...redactions, newRedaction]);
@@ -65,6 +70,13 @@ export default function App() {
       return;
     }
     setFileName(file.name);
+    if (!isPro && pdfCount >= 3) {
+      setError("Free tier limit reached (3 PDFs)");
+      return;
+    }
+    const newCount = pdfCount + 1;
+    setPdfCount(newCount);
+    localStorage.setItem("pdfCount", String(newCount));
     setText("");
     setError("");
     setLoading(true);
@@ -93,12 +105,6 @@ export default function App() {
 
 
   async function convertToMarkdown() {
-    if (!isPro && pdfCount >= 3) {
-      setError("Free tier limit reached (3 PDFs). Upgrade to Pro for unlimited conversions.");
-      return;
-    }
-    if (!pdfDoc) return;
-    setLoading(true);
     setError("");
     const startTime = Date.now();
     try {
@@ -134,7 +140,6 @@ producer: "${metadata?.producer}"
       const processingTime = ((Date.now() - startTime) / 1000).toFixed(1);
       result = `${result}\n\n---\n\n*Converted ${pdfDoc.numPages} pages in ${processingTime}s*`;
       setText(result);
-      setPdfCount(pdfCount + 1);
     } catch (err) {
       console.error("Convert error:", err);
       setError("Failed to convert PDF");
