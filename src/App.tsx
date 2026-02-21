@@ -198,15 +198,8 @@ producer: "${metadata?.producer}"
     }
   }
 
-  async function handleUpgrade() {
-    
-    const stripe = (window as any).Stripe("pk_live_51SwTCGDID6Bb0LNhJsj5riuBUkHBzJiMiXntMsIP7g89j1OGekDbUBVHRzdJMfuiJPOKwSdQxQ61C26tiwDhJtNf00DFD8SqOY");
-    await stripe.redirectToCheckout({
-      lineItems: [{ price: "price_1T3JDvDID6Bb0LNhz7tcoUFW", quantity: 1 }],
-      mode: "subscription",
-      successUrl: "https://convertpdf.pro/#convert",
-      cancelUrl: "https://convertpdf.pro/#pricing",
-    });
+  function handleUpgrade() {
+    window.location.href = "https://buy.stripe.com/eVq4gzbPWgSG4WLel7cs800";
   }
 
   function secureReset() {
