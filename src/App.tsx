@@ -199,7 +199,7 @@ producer: "${metadata?.producer}"
   }
 
   async function handleUpgrade() {
-    window.location.href = "https://buy.stripe.com/XXXXXXXX";
+    
     const stripe = (window as any).Stripe("pk_live_51SwTCGDID6Bb0LNhJsj5riuBUkHBzJiMiXntMsIP7g89j1OGekDbUBVHRzdJMfuiJPOKwSdQxQ61C26tiwDhJtNf00DFD8SqOY");
     await stripe.redirectToCheckout({
       lineItems: [{ price: "price_1T3JDvDID6Bb0LNhz7tcoUFW", quantity: 1 }],
