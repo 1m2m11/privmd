@@ -198,6 +198,16 @@ producer: "${metadata?.producer}"
     }
   }
 
+  async function handleUpgrade() {
+    const stripe = (window as any).Stripe("pk_live_51SwTCGDID6Bb0LNhJsj5riuBUkHBzJiMiXntMsIP7g89j1OGekDbUBVHRzdJMfuiJPOKwSdQxQ61C26tiwDhJtNf00DFD8SqOY");
+    await stripe.redirectToCheckout({
+      lineItems: [{ price: "price_1T3JDvDID6Bb0LNhz7tcoUFW", quantity: 1 }],
+      mode: "subscription",
+      successUrl: "https://convertpdf.pro/#convert",
+      cancelUrl: "https://convertpdf.pro/#pricing",
+    });
+  }
+
   function secureReset() {
     setFileName("");
     setText("");
@@ -483,7 +493,7 @@ producer: "${metadata?.producer}"
                 <li>✓ Batch processing</li>
                 <li>✓ All templates</li>
               </ul>
-              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full py-3 bg-slate-900 text-white rounded-lg">Join Waitlist</button>
+              <button onClick={handleUpgrade} className="w-full py-3 bg-slate-900 text-white rounded-lg">Upgrade — $29/mo</button>
             </div>
             <div className="bg-white border-2 rounded-2xl p-8">
               <h3 className="text-xl font-bold mb-2">Enterprise</h3>
